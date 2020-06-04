@@ -1,11 +1,9 @@
 import {Recipe} from './recipe.model';
-import {EventEmitter, Injectable} from '@angular/core';
+import { Injectable} from '@angular/core';
 import {Ingredient} from '../shared/ingredient.model';
 import {shoppingListsService} from '../shopping-list/shopping-list.service';
-import {ignoreDiagnostics} from '@angular/compiler-cli/src/ngtsc/typecheck/src/diagnostics';
 @Injectable()
 export class RecipesService {
-  recipeSelected = new EventEmitter<Recipe>();
    private recipes: Recipe[] = [
     new Recipe('Fruit Salad',
       'Fruit salad',
