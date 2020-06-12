@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Params} from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
 import {RecipesService} from '../recipes.service';
+import {Recipe} from '../recipe.model';
 
 @Component({
   selector: 'app-recipe-edit',
@@ -13,7 +14,7 @@ export class RecipeEditComponent implements OnInit {
   editMode = false;
   recipeForm: FormGroup;
 
-  constructor(private route: ActivatedRoute, private recipeService: RecipesService) { }
+  constructor(private route: ActivatedRoute, private recipeService: RecipesService, private router: Router) { }
 
   ngOnInit() {
     this.route.params
@@ -26,7 +27,19 @@ export class RecipeEditComponent implements OnInit {
       );
   }
   onSubmit() {
-    console.log(this.recipeForm);
+    const newRecipe = new Recipe(
+      this.recipeForm.value.name,
+      this.recipeForm.value.description,
+      this.recipeForm.value.imagePath,
+      this.recipeForm.value.ingredients
+    );
+    if (this.editMode) {
+      this.recipeService.updateRecipe(this.id, newRecipe);
+    } else {
+      this.recipeService.addRecipe(newRecipe);
+    }
+    this.onCancel();
+
   }
   private initForm() {
     let recipeName = '';
@@ -62,8 +75,8 @@ export class RecipeEditComponent implements OnInit {
   get controls() {
     return (this.recipeForm.get('ingredients') as FormArray).controls;
   }
-  onAddIngredients(){
-    (<FormArray> this.recipeForm.get('ingredients')).push(
+  onAddIngredients() {
+    (this.recipeForm.get('ingredients') as FormArray).push(
       new FormGroup({
         name: new FormControl(),
         amount: new FormControl(null, [
@@ -71,7 +84,14 @@ export class RecipeEditComponent implements OnInit {
           Validators.pattern(/^[1-9]+[0-9]*$/)
         ])
       })
-    )
+    );
   }
+  onCancel() {
+    this.router.navigate(['../'], {relativeTo: this.route});
+  }
+  onDeleteIng(index: number) {
+    (this.recipeForm.get('ingredients') as FormArray).removeAt(index);
+  }
+
 
 }
